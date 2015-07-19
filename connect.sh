@@ -7,18 +7,16 @@ source config.sh
 # WEP connection
 wep() {
 
-  # Enable Wireless interface
-  # Connect using iwconfig + dhclient
-  sudo iwconfig $wIntrf essid $1 key $2 && sudo dhclient $wIntrf
+  # Connect using iw + dhclient
+  sudo iwconfig $wIntrf essid $1 key s:$2 && sudo dhclient $wIntrf
 }
 
 # WPA/WPA2 connection
 wpa() {
 
-  # Enable wireless interface
   # Get the path + wireless network
-  # Connect with wpa_supplicand + dclient
-  sudo wpa_supplicant -B -iwlan0 -c net/$1.conf -Dwext && sudo dhclient $wIntrf
+  # Connect with wpa_supplicant + dclient
+  sudo wpa_supplicant -B -i$wIntrf -c net/$1.conf -Dwext && sudo dhclient $wIntrf
 }
 
 # Ethernet connection
@@ -26,9 +24,27 @@ eth() {
   sudo ifconfig $eIntrf up && sudo dhclient $eIntrf
 }
 
+# Enable ETHERTNET and WIRELESS interfaces
 enableIntrf() {
   sudo ifconfig $eIntrf up && echo "$eIntrf [ENABLED]" || echo "$eIntrf [FAIL]"
   sudo ifconfig $wIntrf up && echo "$wIntrf [ENABLED]" || echo "$wIntrf [FAIL]"
+}
+
+# Disable Interfaces
+disableIntrf() {
+  sudo ifconfig $eIntrf down && echo "$eIntrf [DISABLED]" || echo "$eIntrf [FAIL]"
+  sudo ifconfig $wIntrf down && echo "$wIntrf [DISABLED]" || echo "$wIntrf [FAIL]"
+}
+
+listWireless() {
+  sudo iwlist $wIntrf scan | sed -ne 's#^[[:space:]]*\(Quality=\|Encryption key:\|ESSID:\)#\1#p' -e 's#^[[:space:]]*\(Mode:.*\)$#\1\n#p'
+}
+
+# Disconect networks
+disconnect() {
+  sudo rm -Rf /var/lib/dhcp/dhclient*
+  sudo iw dev $wIntrf disconnect
+  disableIntrf 
 }
 
 # Display terminal application logo. 
@@ -64,14 +80,18 @@ echo "-----------------------------------"
 echo "Connect to a Wired Network"
 echo "1 - Ethernet"
 echo ""
-echo "Select the wireless encryption key:"
-echo "2 - WEP"
-echo "3 - WPA/WPA2"
+echo "Select the wireless encryption type:"
+echo "2 - List avaiable wireless"
+echo "3 - WEP"
+echo "4 - WPA/WPA2"
 echo ""
 echo "Test network"
-echo "4 - Run test(Ping)"
+echo "5 - Run test(Ping)"
+echo ""
+echo "Disconnect networks"
+echo "6 - Disconnect"
 echo "-----------------------------------"
-echo "5 - Script information"
+echo "7 - Script information"
 echo ""
 echo -n "Type your option number: "
 read wOp
@@ -85,12 +105,17 @@ case $wOp in
     echo "---------------------------"
     eth
   ;;
-    
   2)
+    mesg
+    echo "Listing avaiable wireless networks"
+    echo "---------------------------"
+    listWireless   
+  ;;
+  3)
     clear 
     mesg
 
-    echo "WPA/WPA2 Wireless Connector"
+    echo "WEP Wireless Connector"
     echo "---------------------------"
 
     echo -n "Enter the wireless name: "
@@ -103,7 +128,7 @@ case $wOp in
     wep $wpName $wpKey 
   ;;
 
-  3)
+  4)
     clear
     mesg
  
@@ -118,16 +143,21 @@ case $wOp in
     wpa $wName
   ;;
 
-  4)
+  5)
     clear
     mesg
     echo "Testing network on: google.com"
     ping www.google.com -c 4
   ;;
-  5)
+  6)
+    clear
+    mesg
+    echo "Disconnecting..."
+    disconnect
+  ;;
+  7)
     clear
     mesg
     info
   ;;
 esac
-
