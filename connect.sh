@@ -34,7 +34,7 @@ enableIntrf() {
 
 # Disable Interfaces
 disableIntrf() {
-  sudo killall wpa_supplicant
+
   sudo ifconfig $eIntrf down && echo "$eIntrf [DISABLED]" || echo "$eIntrf [FAIL]"
   sudo ifconfig $wIntrf down && echo "$wIntrf [DISABLED]" || echo "$wIntrf [FAIL]"
 }
@@ -47,6 +47,7 @@ listWireless() {
 disconnect() {
   sudo rm -Rf /var/lib/dhcp/dhclient*
   sudo iw dev $wIntrf disconnect
+  sudo killall wpa_supplicant
   disableIntrf 
 }
 
