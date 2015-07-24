@@ -1,12 +1,19 @@
 # NET CONNECTOR
 It's a simply shell script to connect ethernet and wireless tools.
-I build this script because I started using DWM and didn't want graphical applications on my Desktop :P
 
 ### Configuration
-You need to config your network interfaces before start.
-The file is well documented.
+Edit the constants to fit your need.
+If you don't know your networks intefaces, just type in terminal as sudo: `sudo ifconfig`. By default in UNIX Systems cable networks is `eth*`(where the `*` is the number)
+
+### Connecting WEP
+WEP is easy, and you need to store configs. Just know the name and password of the network
 
 ### Connecting to WPA/WPA2
-Create a file with your network name inside: `net` folder, following the Demo sample.
+Create a file with the name you want inside: `net` folder with the following paramethers:
 
-Still under development.
+```
+network={
+  ssid="Network Name"           # Can be found using: sudo iwlist INTERFACE scan
+  password="Network Passphrase" # Network password
+}
+```

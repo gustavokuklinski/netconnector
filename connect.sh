@@ -1,7 +1,9 @@
 #/bin/bash
 
 # Load interface configs
-source config.sh
+declare -r wIntrf="wlan0"
+declare -r eIntrf="eth0"
+
 
 # Connection functions
 # WEP connection
@@ -32,6 +34,7 @@ enableIntrf() {
 
 # Disable Interfaces
 disableIntrf() {
+  sudo killall wpa_supplicant
   sudo ifconfig $eIntrf down && echo "$eIntrf [DISABLED]" || echo "$eIntrf [FAIL]"
   sudo ifconfig $wIntrf down && echo "$wIntrf [DISABLED]" || echo "$wIntrf [FAIL]"
 }
